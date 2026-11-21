@@ -1,17 +1,17 @@
 {
   "name": "snowfall-canvas",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "SnowfallCanvas is a high-performance snowfall animation for any HTMLCanvasElement with automatic DPR and performance adaptation.",
-  "author": "ux-ui.pro",
+  "author": "Maxim <m@nilmuse.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ux-ui-pro/snowfall-canvas.git"
+    "url": "git+https://github.com/nilmuse/snowfall-canvas.git"
   },
   "bugs": {
-    "url": "https://github.com/ux-ui-pro/snowfall-canvas/issues"
+    "url": "https://github.com/nilmuse/snowfall-canvas/issues"
   },
-  "homepage": "https://github.com/ux-ui-pro/snowfall-canvas",
+  "homepage": "https://github.com/nilmuse/snowfall-canvas",
   "sideEffects": false,
   "type": "module",
   "packageManager": "npm@10.9.3",
