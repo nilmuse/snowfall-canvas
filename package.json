@@ -1,6 +1,6 @@
 {
   "name": "snowfall-canvas",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "SnowfallCanvas is a high-performance snowfall animation for any HTMLCanvasElement with automatic DPR and performance adaptation.",
   "author": "Maxim <m@nilmuse.com>",
   "license": "MIT",
