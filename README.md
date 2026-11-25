@@ -1,21 +1,11 @@
 # snowfall-canvas
 
-High-performance snowfall animation for any HTMLCanvasElement with automatic DPR and performance adaptation.
+Render snowfall on an existing canvas, with control over snowflake density, size, color, and motion. It resizes with its container and reduces rendering load when frames slow down.
 
 [![npm](https://img.shields.io/npm/v/snowfall-canvas.svg?colorB=brightgreen)](https://www.npmjs.com/package/snowfall-canvas)
 [![NPM Downloads](https://img.shields.io/npm/dm/snowfall-canvas.svg?style=flat)](https://www.npmjs.com/package/snowfall-canvas)
 
 [Demo](https://codepen.io/ux-ui/pen/zxBGXgm)
-
----
-
-- Adapts to device pixel ratio and throttles when frames get long.
-- Recalculates particle density from container size (base area 1920×1080).
-- Pauses when the tab is hidden; resumes on return.
-- Does not inject DOM or CSS — your app controls layout and styling.
-- ~2kB gzipped.
-
----
 
 ## Installation
 
@@ -23,9 +13,9 @@ High-performance snowfall animation for any HTMLCanvasElement with automatic DPR
 npm install snowfall-canvas
 ```
 
-## Quick Start
+## Quick start
 
-HTML: container + canvas (framework-friendly):
+In a browser app with a bundler, add a container and canvas:
 
 ```html
 <div id="snow-wrap">
@@ -33,7 +23,7 @@ HTML: container + canvas (framework-friendly):
 </div>
 ```
 
-CSS: make the canvas cover its container:
+Give the container a visible size and make the canvas cover it. The dark background makes the snow visible:
 
 ```css
 #snow-wrap {
@@ -42,6 +32,7 @@ CSS: make the canvas cover its container:
   width: 100%;
   height: 100vh;
   height: 100dvh;
+  background: #101820;
 }
 
 #snow-canvas {
@@ -53,7 +44,7 @@ CSS: make the canvas cover its container:
 }
 ```
 
-JavaScript:
+Run this TypeScript module after the markup exists:
 
 ```ts
 import { SnowfallCanvas } from 'snowfall-canvas';
@@ -67,29 +58,29 @@ snow.init();
 snow.start();
 ```
 
+The canvas fills with falling snow. Call `snow.destroy()` before removing the container or canvas.
+
 ## API
 
-Named exports:
+The package exports the `SnowfallCanvas` class and `defaultConfig`:
 
 ```ts
 import { SnowfallCanvas, defaultConfig } from 'snowfall-canvas';
 ```
 
-- `SnowfallCanvas` — main class.
-- `defaultConfig` — default `SnowConfig` values (see table below).
-- Types: `SnowConfig`, `SnowConfigInput`, `SnowfallCanvasOptions`, `Range`.
+`defaultConfig` contains the `SnowConfig` defaults listed below. The package also exports the types `SnowConfig`, `SnowConfigInput`, `SnowfallCanvasOptions`, and `Range`.
 
-## Options
+### Options
 
-Constructor options:
+Pass these options to `new SnowfallCanvas(options)`. String values are DOM ids, without a leading `#`:
 
-| Option      | Type                          | Required | Description                                                                 |
-|:------------|:------------------------------|:--------:|:----------------------------------------------------------------------------|
-| `container` | `HTMLElement \| string`       | yes      | Container element (or its `id`) whose size drives internal canvas resizing. |
-| `canvas`    | `HTMLCanvasElement \| string` | yes      | Canvas element (or its `id`) used for rendering.                            |
-| `config`    | `Partial<SnowConfig>`         | no       | Configuration overrides.                                                    |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `container` | `HTMLElement \| string` | Required | Container element or its `id`. Its size determines the canvas drawing-buffer size. |
+| `canvas` | `HTMLCanvasElement \| string` | Required | Canvas element or its `id`. |
+| `config` | `Partial<SnowConfig>` | `undefined` | Override any of the configuration values below. Omitted values use `defaultConfig`. |
 
-### Config
+#### Snow configuration
 
 | Option         | Type               | Default              | Description                                                              |
 |:---------------|:-------------------|:---------------------|:-------------------------------------------------------------------------|
@@ -97,12 +88,12 @@ Constructor options:
 | `maxParticles` | `number`           | `2500`               | Hard cap for total particles.                                            |
 | `size`         | `[number, number]` | `[0.8, 1.5]`         | Particle size range in pixels.                                           |
 | `swingSpeed`   | `[number, number]` | `[0.2, 0.8]`         | Horizontal sinusoid speed factor.                                        |
-| `fallSpeed`    | `[number, number]` | `[40, 80]`           | Fall speed in px/s.                                                      |
-| `amplitude`    | `[number, number]` | `[20, 45]`           | Horizontal swing amplitude (px).                                         |
+| `fallSpeed`    | `[number, number]` | `[40, 80]`           | Fall speed range in px/s.                                                |
+| `amplitude`    | `[number, number]` | `[20, 45]`           | Horizontal swing amplitude range in pixels.                              |
 | `color`        | `string`           | `"rgb(225,225,225)"` | Particle color (`fillStyle`).                                            |
 | `dprCap`       | `number`           | `2`                  | Upper bound for `devicePixelRatio`.                                      |
 
-Example with overrides:
+As an alternative to the instance in Quick start, use the same elements with configuration overrides:
 
 ```ts
 const snow = new SnowfallCanvas({
@@ -112,11 +103,7 @@ const snow = new SnowfallCanvas({
     amount: 2000,
     maxParticles: 3000,
     size: [0.6, 1.5],
-    swingSpeed: [0.2, 0.8],
-    fallSpeed: [40, 80],
-    amplitude: [20, 45],
     color: 'rgba(200,200,200,1)',
-    dprCap: 2,
   },
 });
 
@@ -124,21 +111,21 @@ snow.init();
 snow.start();
 ```
 
-## Methods
+### Methods
 
 | Method            | Description                                                                                         |
 |:------------------|:----------------------------------------------------------------------------------------------------|
-| `init()`          | Reads container size, resizes internal canvas buffer, and subscribes to resize + visibility events. |
+| `init()`          | Read the container size, resize the canvas drawing buffer, and subscribe to resize and visibility events. |
 | `start()`         | Starts the render loop.                                                                             |
 | `stop()`          | Stops the render loop.                                                                              |
-| `destroy()`       | Stops and removes listeners/observers.                                                              |
+| `destroy()`       | Stop the animation and remove listeners and observers. |
 | `requestResize()` | Schedules a resize on the next animation frame. Useful after manual layout updates.                 |
 | `setAmount(amount)` | Updates base density and re-seeds particles.                                                      |
 | `setMaxParticles(max)` | Adjusts the upper limit and re-seeds particles.                                                |
 
-## Framework integration
+## Vue 3
 
-### Vue 3
+This component creates the animation after mount and destroys it before unmount:
 
 ```vue
 <template>
@@ -166,11 +153,7 @@ onMounted(() => {
       amount: 2000,
       maxParticles: 3000,
       size: [0.6, 1.5],
-      swingSpeed: [0.2, 0.8],
-      fallSpeed: [40, 80],
-      amplitude: [20, 45],
       color: 'rgba(200,200,200,1)',
-      dprCap: 2,
     },
   });
 
@@ -191,6 +174,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100vh;
   height: 100dvh;
+  background: #101820;
 }
 
 .cnv {
@@ -203,11 +187,18 @@ onBeforeUnmount(() => {
 </style>
 ```
 
-## Notes
+## Rendering and sizing
 
-- The internal canvas buffer is resized to match the container size and current DPR (capped by `dprCap`).
-- Density auto-scales by container area and DPR; the library may reduce DPR and particle count if frames get long.
-- Ensure the container has a computed size (height must not be `0`) and the canvas covers it via CSS.
+- The canvas drawing buffer follows the container size and current device pixel ratio, capped by `dprCap`.
+- Particle density is calculated from the container area, using 1920×1080 as the base, and adjusted for DPR. The library may reduce DPR and particle count when frames take too long.
+- Pauses when the tab is hidden and resumes on return.
+- Uses your existing DOM and CSS; it does not add elements or styles.
+
+## Browser support
+
+Create the instance in the browser after its container and canvas exist. The container needs a nonzero computed width and height, and your CSS must make the canvas cover it.
+
+The animation needs Canvas 2D and `requestAnimationFrame`. Resizing uses `ResizeObserver` when available and falls back to window resize events otherwise.
 
 ## License
 
